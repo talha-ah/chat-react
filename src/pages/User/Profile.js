@@ -4,12 +4,16 @@ import { makeStyles } from "@material-ui/core/styles";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
+import Messenger from "../Messenger";
+
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: "#FFF",
+    height: "100vh",
+    backgroundColor: "red",
   },
   content: {
-    minHeight: "80vh",
+    height: "calc(100vh - 64px - 64px)",
+    borderBottom: "5px solid #FF5722",
   },
 }));
 
@@ -19,7 +23,9 @@ const Profile = (props) => {
   return (
     <div className={classes.root}>
       <Header />
-      <div className={classes.content}>Profile</div>
+      <div className={classes.content}>
+        <Messenger />
+      </div>
       <Footer />
     </div>
   );
