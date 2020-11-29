@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { Switch, Route, Redirect } from "react-router-dom";
 
+import API from "../globals/API";
+import Constants from "../globals/Constants";
 import * as actionTypes from "../store/actions/actionTypes";
 
 import Login from "../pages/Login";
@@ -9,11 +11,13 @@ import Register from "../pages/Register";
 import PasswordForgot from "../pages/PasswordForgot";
 
 // User
+import Chat from "../pages/User/Chat";
 import Profile from "../pages/User/Profile";
+import Messenger from "../pages/User/Messenger";
 
 import Loader from "../components/Loader";
 
-const LFS = () => {
+const MAIN = () => {
   const store = useSelector((state) => state);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
@@ -30,28 +34,18 @@ const LFS = () => {
         setLoading(false);
         return;
       }
-      // const response = await fetch(
-      //   `${process.env.REACT_APP_SERVER_URL}/profile`,
-      //   {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     redirect: "follow",
-      //   }
-      // );
-      // if (!response.ok) throw response;
-      // const data = await response.json();
-      setTimeout(() => {
-        dispatch({
-          type: actionTypes.LOGIN,
-          user: "user",
-          token: "token",
-        });
-        setLoading(false);
-      }, 1000);
+      const data = await API({
+        uri: Constants.GET_PROFILE,
+        token: token,
+      });
+      dispatch({
+        type: actionTypes.LOGIN,
+        user: data.user,
+        token: token,
+      });
+      setLoading(false);
     } catch (err) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
+      localStorage.removeItem("test");
       console.log(err);
     }
   };
@@ -61,6 +55,8 @@ const LFS = () => {
   ) : store.auth ? (
     <Switch>
       <Route exact path="/" component={Profile} />
+      <Route exact path="/messenger" component={Messenger} />
+      <Route exact path="/messenger/:chatId" component={Chat} />
       <Redirect from="*" to="/" />
     </Switch>
   ) : (
@@ -73,4 +69,4 @@ const LFS = () => {
   );
 };
 
-export default LFS;
+export default MAIN;

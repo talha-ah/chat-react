@@ -7,9 +7,13 @@ import Typography from "@material-ui/core/Typography";
 import LockIcon from "@material-ui/icons/Lock";
 import PersonIcon from "@material-ui/icons/Person";
 
+import API from "../globals/API";
+import Constants from "../globals/Constants";
 import * as actionTypes from "../store/actions/actionTypes";
+
 import Input from "../components/Input";
 import Button from "../components/Button";
+import Loader from "../components/Loader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,11 +73,18 @@ export default function Login(props) {
         setErrors({ ...errors, password: true });
       } else {
         setLoading(true);
-        setLoading(false);
+        const data = await API({
+          method: "POST",
+          uri: Constants.LOGIN,
+          body: JSON.stringify({
+            email: values.email,
+            password: values.password,
+          }),
+        });
         dispatch({
           type: actionTypes.LOGIN,
-          user: "user",
-          token: "token",
+          user: data.user,
+          token: data.token,
         });
       }
     } catch (err) {
@@ -129,7 +140,7 @@ export default function Login(props) {
             type="submit"
             onClick={onSubmit}
             disabled={loading}
-            text={loading ? "Loading..." : "Login"}
+            text={loading ? <Loader.Progress /> : "LOGIN"}
           />
         </div>
         <div className={classes.formItem}>

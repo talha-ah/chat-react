@@ -1,5 +1,5 @@
 {
-  "name": "template-reactjs",
+  "name": "messenger-reactjs",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,7 +19,7 @@
     "web-vitals": "^1.0.1"
   },
   "keywords": [
-    "tempalte",
+    "messenger",
     "reactjs",
     "Use 'npm install -g npm-check-updates' to install updater",
     "Use 'ncu' to check outdated dependencies",

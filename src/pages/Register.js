@@ -5,6 +5,10 @@ import Typography from "@material-ui/core/Typography";
 
 import Input from "../components/Input";
 import Button from "../components/Button";
+import Loader from "../components/Loader";
+
+import API from "../globals/API";
+import Constants from "../globals/Constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,12 +62,12 @@ export default function Register(props) {
   const classes = useStyles();
   const [loading, setLoading] = React.useState(false);
   const [values, setValues] = React.useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    date: "",
-    password: "",
-    confirmPassword: "",
+    firstName: "Talha",
+    lastName: "Ahmed",
+    email: "test@user.com",
+    date: "1998-08-28",
+    password: "password12",
+    confirmPassword: "password12",
   });
   const [errors, setErrors] = React.useState({
     firstName: false,
@@ -90,7 +94,19 @@ export default function Register(props) {
         setErrors({ ...errors, confirmPassword: true });
       } else {
         setLoading(true);
-        setLoading(false);
+        await API({
+          method: "POST",
+          uri: Constants.REGISTER,
+          body: JSON.stringify({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            dob: values.date,
+            password: values.password,
+          }),
+        });
+        alert("Registration was successful!");
+        props.history.replace("/");
       }
     } catch (err) {
       setLoading(false);
@@ -215,9 +231,9 @@ export default function Register(props) {
         <div className={classes.formItem}>
           <Button
             type="submit"
-            text={loading ? "Loading..." : "REGISTER"}
             disabled={loading}
             onClick={onSubmit}
+            text={loading ? <Loader.Progress /> : "REGISTER"}
           />
         </div>
         <div className={classes.formItem}>
