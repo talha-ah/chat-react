@@ -1,5 +1,6 @@
 // const BASE_URL = 'https://cors-anywhere.herokuapp.com/http://localhost:5000';
-const BASE_URL = "http://192.168.0.107:8080";
+const BASE_URL = "http://localhost:8080";
+// const BASE_URL = "http://192.168.0.107:8080";
 
 const endpoints = {
   BASE_URL,

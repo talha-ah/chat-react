@@ -12,6 +12,7 @@ import ChatIcon from "@material-ui/icons/Chat";
 import Toolbar from "@material-ui/core/Toolbar";
 import ListItem from "@material-ui/core/ListItem";
 import PersonIcon from "@material-ui/icons/Person";
+import DeleteIcon from "@material-ui/icons/Delete";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
@@ -59,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
     padding: 10,
     paddingBottom: 0,
     overflow: "scroll",
+    position: "relative",
     background: "#f2f2f2",
     backgroundColor: "#f2f2f2",
     height: "calc(100% - 64px)",
@@ -70,7 +72,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   fab: {
-    alignSelf: "flex-end",
+    position: "absolute",
+    bottom: 0,
+    right: 10,
+    boxShadow: "none",
   },
 }));
 
@@ -164,11 +169,21 @@ const Messenger = (props) => {
                       </Badge>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={chat.with.firstName + " " + chat.with.lastName}
-                      secondary={chat.with.email}
+                      primary={
+                        chat.user._id === store.user._id
+                          ? chat.with.firstName + " " + chat.with.lastName
+                          : chat.user.firstName + " " + chat.user.lastName
+                      }
+                      secondary={
+                        chat.user._id === store.user._id
+                          ? chat.with.email
+                          : chat.user.email
+                      }
                     />
                     <ListItemSecondaryAction>
-                      {chat.messages.length}
+                      <IconButton>
+                        <DeleteIcon color="error" />
+                      </IconButton>
                     </ListItemSecondaryAction>
                   </ListItem>
                 ))

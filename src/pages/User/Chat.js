@@ -187,18 +187,32 @@ const Chat = (props) => {
   const store = useSelector((state) => state);
 
   const [text, setText] = useState("");
+  const [userTo, setUserTo] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [getUpdate, setUpdated] = useState(false);
-  const [userTo, setUserTo] = useState("");
   const [messageLoading, setMessageLoading] = useState(false);
 
   useEffect(() => {
-    // socket = socketIOClient(Constants.BASE_URL);
-    // socket.on("toClient", (data) => {
-    //   console.log("toClient", { data });
-    // });
+    socket = socketIOClient(Constants.BASE_URL, {
+      query: `userId=${store.user._id}`,
+    });
+
+    socket.on("message", (data) => {
+      if (data.action === "create") {
+        setMessages((arr) => {
+          arr = [...arr, data.message];
+          return arr;
+        });
+        setUpdated((st) => !st);
+      } else if (data.action === "delete") {
+        console.log("delete message", { data });
+      }
+    });
     getChat();
+    return () => {
+      socket.disconnect("true");
+    };
     // eslint-disable-next-line
   }, []);
 
@@ -221,7 +235,11 @@ const Chat = (props) => {
         uri: Constants.GET_CHAT + "/" + props.match.params.chatId,
         token: store.token,
       });
-      setUserTo(data.chat.with);
+      setUserTo(
+        String(data.chat.user._id) === String(store.user._id)
+          ? data.chat.with
+          : data.chat.user,
+      );
       setMessages(data.chat.messages);
       setLoading(false);
       setUpdated((st) => !st);
@@ -239,15 +257,17 @@ const Chat = (props) => {
           token: store.token,
           body: JSON.stringify({
             text: text,
+            receiverId: userTo._id,
           }),
         });
-        let messagesArray = messages;
-        messagesArray.push(data.message);
-        setMessages(messagesArray);
+        setMessages((arr) => {
+          arr = [...arr, data.message];
+          return arr;
+        });
+        // setMessages([...messages, data.message]);
         setText("");
         setUpdated((st) => !st);
         setMessageLoading(false);
-        // socket.emit("toServer", message);
       }
     } catch (err) {
       setMessageLoading(false);

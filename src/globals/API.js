@@ -14,7 +14,7 @@ const api = ({ method = "GET", uri, body, headers, token }) =>
         throw response;
       }
       let data = await response.json();
-      console.log("[API Data]:", data);
+      console.log(`[API Data at ${new Date().toLocaleString()}]:`, data);
       resolve(data);
     } catch (err) {
       const error = await err.json();

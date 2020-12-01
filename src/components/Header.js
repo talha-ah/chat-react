@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Drawer from "@material-ui/core/Drawer";
@@ -70,8 +70,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Login(props) {
-  const dispatch = useDispatch();
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const store = useSelector((state) => state);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawer, setDrawer] = React.useState(false);
 
@@ -146,7 +148,9 @@ export default function Login(props) {
                 alt="profileImage"
                 className={classes.profileImage}
               />
-              <span className={classes.profileName}>Anne-Gabrielle</span>
+              <span className={classes.profileName}>
+                {store.user.firstName + " " + store.user.lastName}
+              </span>
             </div>
             <Menu
               id="simple-menu"
