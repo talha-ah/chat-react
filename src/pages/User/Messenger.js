@@ -90,8 +90,10 @@ const Messenger = (props) => {
   const [chats, setChats] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [chatLoading, setChatLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState("");
 
   useEffect(() => {
     getChats();
@@ -130,6 +132,26 @@ const Messenger = (props) => {
       }
     } catch (err) {
       alert("Whoops, there was an error!");
+    }
+  };
+  const onDelete = async (chatId) => {
+    try {
+      setDeleteLoading(true);
+      const data = await API({
+        method: "DELETE",
+        uri: Constants.DELETE_CHAT + "/" + chatId,
+        token: store.token,
+      });
+      setChats((chatsArray) => {
+        chatsArray = chatsArray.filter(
+          (chat) => String(chat._id) !== String(data.chat._id),
+        );
+        return chatsArray;
+      });
+      setDeleteLoading(false);
+    } catch (err) {
+      alert("Whoops, there was an error!");
+      setDeleteLoading(false);
     }
   };
 
@@ -187,8 +209,22 @@ const Messenger = (props) => {
               }}
             />
             <ListItemSecondaryAction>
-              <IconButton>
-                <DeleteIcon color="error" />
+              <IconButton
+                onClick={() => {
+                  setSelectedChatId(chat._id);
+                  onDelete(chat._id);
+                }}
+                disabled={
+                  deleteLoading && String(chat._id) === String(selectedChatId)
+                }
+              >
+                <DeleteIcon
+                  color={
+                    deleteLoading && String(chat._id) === String(selectedChatId)
+                      ? "disabled"
+                      : "error"
+                  }
+                />
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>

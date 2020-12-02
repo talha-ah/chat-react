@@ -13,6 +13,7 @@ const endpoints = {
   // Messenger
   GET_CHATS: BASE_URL + "/messenger/chats",
   GET_CHAT: BASE_URL + "/messenger/chat",
+  DELETE_CHAT: BASE_URL + "/messenger/chat",
   CREATE_CHAT: BASE_URL + "/messenger/chats",
   CREATE_MESSAGE: BASE_URL + "/messenger/chat",
 };
