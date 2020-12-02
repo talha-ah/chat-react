@@ -1,11 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
+
+import SmallText from "../components/SmallText";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: 64,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: theme.palette.common.white,
+    borderTop: `5px solid ${theme.palette.secondary.main}`,
   },
   nav: {
     width: "100%",
@@ -14,12 +16,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-  },
-  link: {
-    fontSize: 12,
-    color: "#000",
-    margin: "0 12px",
-    textDecoration: "none",
+    "& > *": {
+      margin: "0 15px",
+    },
   },
 }));
 
@@ -29,18 +28,10 @@ export default function Login(props) {
   return (
     <div className={classes.root}>
       <nav className={classes.nav}>
-        <Link className={classes.link} to="/product">
-          Product
-        </Link>
-        <Link className={classes.link} to="/pricing">
-          Pricing
-        </Link>
-        <Link className={classes.link} to="/contacts">
-          Contacts
-        </Link>
-        <Link className={classes.link} to="/team">
-          Team
-        </Link>
+        <SmallText to="/product" text="Product" />
+        <SmallText to="/pricing" text="Pricing" />
+        <SmallText to="/contacts" text="Contacts" />
+        <SmallText to="/team" text=" Team" />
       </nav>
     </div>
   );

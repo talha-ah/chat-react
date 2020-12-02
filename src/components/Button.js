@@ -9,7 +9,6 @@ export default function Button(props) {
       height: 44,
       fontSize: 16,
       width: "100%",
-      color: "#fff",
       display: "flex",
       borderRadius: 4,
       cursor: "pointer",
@@ -18,6 +17,7 @@ export default function Button(props) {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      color: theme.palette.common.white,
       backgroundColor: theme.palette.secondary.main,
       transition: "background-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms",
       boxShadow:

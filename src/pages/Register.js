@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 
+import Form from "../components/Form";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
+import Heading from "../components/Heading";
+import SmallText from "../components/SmallText";
 
 import API from "../globals/API";
 import Constants from "../globals/Constants";
@@ -21,40 +22,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     backgroundColor: "#f5f7fb",
     backgroundPosition: "center",
-  },
-  header: {
-    fontSize: 26,
-    marginBottom: 40,
-    fontWeight: "bold",
-    color: theme.palette.primary.main,
-  },
-  form: {
-    width: 350,
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  formItem: {
-    width: "100%",
-    margin: "10px 0",
-  },
-  smallText: {
-    fontSize: 10,
-    margin: "5px 0",
-    textDecoration: "none",
-    color: theme.palette.primary.main,
-  },
-  formRow: {
-    width: "100%",
-    margin: "6px 0",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  formRowItem: {
-    width: "48%",
   },
 }));
 
@@ -115,10 +82,10 @@ export default function Register(props) {
 
   return (
     <div className={classes.root}>
-      <Typography className={classes.header}>Register your account</Typography>
-      <div className={classes.form}>
-        <div className={classes.formRow}>
-          <div className={classes.formRowItem}>
+      <Heading text="Register your account" />
+      <Form.Root>
+        <Form.Row>
+          <Form.RowItem>
             <Input
               type="text"
               name="firstName"
@@ -137,8 +104,8 @@ export default function Register(props) {
               }}
               error={errors.firstName && "Something"}
             />
-          </div>
-          <div className={classes.formRowItem}>
+          </Form.RowItem>
+          <Form.RowItem>
             <Input
               type="text"
               name="lastName"
@@ -157,9 +124,9 @@ export default function Register(props) {
               }}
               error={errors.lastName && "Something"}
             />
-          </div>
-        </div>
-        <div className={classes.formItem}>
+          </Form.RowItem>
+        </Form.Row>
+        <Form.Item>
           <Input
             type="email"
             name="email"
@@ -176,8 +143,8 @@ export default function Register(props) {
             }}
             error={errors.email && "Something"}
           />
-        </div>
-        <div className={classes.formItem}>
+        </Form.Item>
+        <Form.Item>
           <Input
             type="text"
             name="date"
@@ -193,8 +160,8 @@ export default function Register(props) {
               }
             }}
           />
-        </div>
-        <div className={classes.formItem}>
+        </Form.Item>
+        <Form.Item>
           <Input
             type="password"
             name="password"
@@ -210,8 +177,8 @@ export default function Register(props) {
             }}
             error={errors.password && "Something"}
           />
-        </div>
-        <div className={classes.formItem}>
+        </Form.Item>
+        <Form.Item>
           <Input
             type="password"
             name="confirmPassword"
@@ -227,21 +194,19 @@ export default function Register(props) {
             }}
             error={errors.confirmPassword && "Something"}
           />
-        </div>
-        <div className={classes.formItem}>
+        </Form.Item>
+        <Form.ButtonContainer>
           <Button
             type="submit"
             disabled={loading}
             onClick={onSubmit}
             text={loading ? <Loader.Progress /> : "REGISTER"}
           />
-        </div>
-        <div className={classes.formItem}>
-          <Link to="/" className={classes.smallText}>
-            Already have an account? Login Now
-          </Link>
-        </div>
-      </div>
+        </Form.ButtonContainer>
+        <Form.Item>
+          <SmallText text="Already have an account? Login Now" to="/" />
+        </Form.Item>
+      </Form.Root>
     </div>
   );
 }

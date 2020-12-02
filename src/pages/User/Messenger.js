@@ -5,21 +5,18 @@ import Fab from "@material-ui/core/Fab";
 import List from "@material-ui/core/List";
 import Badge from "@material-ui/core/Badge";
 import AddIcon from "@material-ui/icons/Add";
+import Hidden from "@material-ui/core/Hidden";
 import Avatar from "@material-ui/core/Avatar";
-import AppBar from "@material-ui/core/AppBar";
 import Dialog from "@material-ui/core/Dialog";
-import ChatIcon from "@material-ui/icons/Chat";
-import Toolbar from "@material-ui/core/Toolbar";
 import ListItem from "@material-ui/core/ListItem";
 import PersonIcon from "@material-ui/icons/Person";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 
 import API from "../../globals/API";
@@ -34,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
   },
   content: {
-    borderBottom: "5px solid #FF5722",
     height: "calc(100vh - 64px - 64px)",
   },
   wrapper: {
@@ -43,39 +39,47 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     transition: "0.3s ease",
   },
-  toolbar: {
-    backgroundColor: "#F44336",
-    borderBottom: "3px solid #ea1c0d",
-  },
-  title: {
-    flexGrow: 1,
-    fontWeight: 100,
-    marginLeft: theme.spacing(2),
-  },
   icon: {
     fontSize: 30,
-    color: "#fff",
+    color: theme.palette.common.white,
   },
   messenger: {
     padding: 10,
+    display: "flex",
     paddingBottom: 0,
     overflow: "scroll",
     position: "relative",
-    background: "#f2f2f2",
-    backgroundColor: "#f2f2f2",
-    height: "calc(100% - 64px)",
-    display: "flex",
     flexDirection: "column",
+    height: "calc(100%)",
     justifyContent: "space-between",
+    backgroundColor: theme.palette.common.white,
     "&::-webkit-scrollbar": {
       width: 0,
     },
   },
   fab: {
-    position: "absolute",
     bottom: 0,
     right: 10,
     boxShadow: "none",
+    position: "absolute",
+    color: theme.palette.secondary.light,
+    backgroundColor: theme.palette.secondary.main,
+  },
+  drawerPaper: {
+    width: 350,
+  },
+  listItem: {
+    borderRadius: 10,
+    "&.Mui-selected, &:hover": {
+      backgroundColor: theme.palette.primary.main,
+    },
+  },
+  listItemTextPrimary: {
+    fontWeight: "bold",
+    color: theme.palette.primary.contrastText,
+  },
+  listItemTextSecondary: {
+    color: theme.palette.secondary.contrastText,
   },
 }));
 
@@ -87,6 +91,7 @@ const Messenger = (props) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     getChats();
@@ -128,77 +133,112 @@ const Messenger = (props) => {
     }
   };
 
+  const ListRender = () => (
+    <List style={{ height: "100%" }}>
+      {loading ? (
+        <Loader.Progress />
+      ) : (
+        chats.map((chat) => (
+          <ListItem
+            button
+            key={chat._id}
+            onClick={() => {
+              setTimeout(
+                () => props.history.push("/messenger/" + chat._id),
+                250,
+              );
+            }}
+            classes={{
+              root: classes.listItem,
+            }}
+          >
+            <ListItemAvatar>
+              <Badge
+                badgeContent={chat.messages.length}
+                color="secondary"
+                showZero={true}
+              >
+                <Avatar>
+                  <img
+                    src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png"
+                    alt="avatar_chat"
+                    width="40"
+                    height="40"
+                  />
+                </Avatar>
+              </Badge>
+            </ListItemAvatar>
+            <ListItemText
+              primary={
+                chat.user._id === store.user._id
+                  ? chat.with.firstName + " " + chat.with.lastName
+                  : chat.user.firstName + " " + chat.user.lastName
+              }
+              secondary={
+                chat.user._id === store.user._id
+                  ? chat.with.email
+                  : chat.user.email
+              }
+              primaryTypographyProps={{
+                classes: { root: classes.listItemTextPrimary },
+              }}
+              secondaryTypographyProps={{
+                classes: { root: classes.listItemTextSecondary },
+              }}
+            />
+            <ListItemSecondaryAction>
+              <IconButton>
+                <DeleteIcon color="error" />
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))
+      )}
+      {!loading && chats.length === 0 && (
+        <ListItem>
+          <ListItemText
+            primary={"We come up empty"}
+            secondary={"Click + button to start a new chat"}
+            primaryTypographyProps={{
+              classes: { root: classes.listItemTextPrimary },
+            }}
+            secondaryTypographyProps={{
+              classes: { root: classes.listItemTextSecondary },
+            }}
+          />
+        </ListItem>
+      )}
+    </List>
+  );
+
   return (
     <div className={classes.root}>
       <Header />
       <div className={classes.content}>
+        <Hidden smUp implementation="css">
+          <SwipeableDrawer
+            anchor={"left"}
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            onOpen={() => setDrawerOpen(true)}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            container={
+              window !== undefined ? () => window.document.body : undefined
+            }
+          >
+            <ListRender />
+          </SwipeableDrawer>
+        </Hidden>
         <div className={classes.wrapper}>
-          <AppBar position="static">
-            <Toolbar className={classes.toolbar} disableGutters>
-              <Typography className={classes.title}>Messenger</Typography>
-              <IconButton>
-                <MoreVertIcon className={classes.icon} />
-              </IconButton>
-            </Toolbar>
-          </AppBar>
           <div className={classes.messenger}>
-            <List style={{ height: "100%" }}>
-              {loading ? (
-                <Loader.Progress />
-              ) : (
-                chats.map((chat) => (
-                  <ListItem
-                    button
-                    key={chat._id}
-                    onClick={() => {
-                      setTimeout(
-                        () => props.history.push("/messenger/" + chat._id),
-                        250,
-                      );
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Badge
-                        badgeContent={chat.messages.length}
-                        color="primary"
-                        showZero={true}
-                      >
-                        <Avatar>
-                          <ChatIcon />
-                        </Avatar>
-                      </Badge>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        chat.user._id === store.user._id
-                          ? chat.with.firstName + " " + chat.with.lastName
-                          : chat.user.firstName + " " + chat.user.lastName
-                      }
-                      secondary={
-                        chat.user._id === store.user._id
-                          ? chat.with.email
-                          : chat.user.email
-                      }
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ))
-              )}
-              {!loading && chats.length === 0 && (
-                <ListItem>
-                  <ListItemText
-                    primary={"We come up empty"}
-                    secondary={"Click + button to start a new chat"}
-                  />
-                </ListItem>
-              )}
-            </List>
+            <ListRender />
             <Fab
-              color="primary"
+              // color="secondary"
               className={classes.fab}
               onClick={() => setOpen(true)}
             >
@@ -207,8 +247,8 @@ const Messenger = (props) => {
           </div>
         </div>
       </div>
-      <SimpleDialog open={open} onClose={onClose} loading={chatLoading} />
       <Footer />
+      <SimpleDialog open={open} onClose={onClose} loading={chatLoading} />
     </div>
   );
 };

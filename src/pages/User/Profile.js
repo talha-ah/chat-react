@@ -3,12 +3,13 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-
 import Button from "../../components/Button";
+import Heading from "../../components/Heading";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
+    backgroundColor: theme.palette.common.white,
   },
   content: {
     display: "flex",
@@ -16,9 +17,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "space-between",
-    borderBottom: "5px solid #FF5722",
     height: "calc(100vh - 64px - 64px)",
-    backgroundColor: theme.palette.grey[400],
   },
 }));
 
@@ -29,7 +28,7 @@ const Profile = (props) => {
     <div className={classes.root}>
       <Header />
       <div className={classes.content}>
-        <p>Main Page</p>
+        <Heading text="Main Page" />
         <Button
           text="Go to Messenger"
           onClick={() => {
