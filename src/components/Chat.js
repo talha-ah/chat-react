@@ -4,7 +4,9 @@ import StarIcon from "@material-ui/icons/Star";
 import SendIcon from "@material-ui/icons/Send";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
+import Hidden from "@material-ui/core/Hidden";
 import Typography from "@material-ui/core/Typography";
+import MenuIcon from "@material-ui/icons/Menu";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 
@@ -21,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
   // input
   topBar: {
     height: "84px",
-    paddingLeft: "20px",
     color: theme.palette.custom.primary.contrastText,
     backgroundColor: theme.palette.custom.primary.light,
     borderBottom: `1px solid ${theme.palette.custom.divider.light}`,
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: "14px",
     fontWeight: 700,
+    paddingLeft: "20px",
     color: theme.palette.custom.icon,
   },
   subTitle: {
@@ -177,6 +179,15 @@ const useStyles = makeStyles((theme) => ({
     width: "100px",
     height: "100%",
   },
+  absoluteMenu: {
+    position: "absolute",
+    top: 5,
+    left: 5,
+    display: "block",
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+  },
 }));
 
 const Chat = (props) => {
@@ -199,12 +210,27 @@ const Chat = (props) => {
 
   return (
     <div className={classes.root}>
+      {props.selectedChat === "" && (
+        <div className={classes.absoluteMenu}>
+          <IconButton onClick={props.onOpenDrawer}>
+            <MenuIcon />
+          </IconButton>
+        </div>
+      )}
       {props.selectedChat === "" ? (
         <Empty.Empty />
       ) : (
         <>
           <Row className={classes.topBar}>
             <Row>
+              <Hidden mdUp>
+                <IconButton
+                  style={{ marginLeft: 10, marginRight: "-10px" }}
+                  onClick={props.onOpenDrawer}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Hidden>
               <Typography className={classes.title}>
                 {props.selectedChat.user._id === props.user._id
                   ? props.selectedChat.with.firstName +

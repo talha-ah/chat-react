@@ -3,11 +3,16 @@ import React from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import Typography from "@material-ui/core/Typography";
+import Tooltip from "@material-ui/core/Tooltip";
+import Hidden from "@material-ui/core/Hidden";
+
+import InboxIcon from "@material-ui/icons/Inbox";
+import MessageIcon from "@material-ui/icons/Message";
 
 import Row from "./MenuRow";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  textual: {
     width: 250,
     height: "100%",
     padding: "25px 16px",
@@ -24,10 +29,8 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     fontSize: "16px",
     cursor: "pointer",
-    borderRadius: "50%",
     placeItems: "center",
     color: theme.palette.common.white,
-    border: `1px solid ${theme.palette.custom.divider.main}`,
   },
   // list
   list: {
@@ -58,6 +61,13 @@ const useStyles = makeStyles((theme) => ({
     margin: "20px 0px",
     backgroundColor: theme.palette.custom.divider.main,
   },
+  // ====================
+  iconic: {
+    width: 80,
+    height: "100%",
+    padding: "25px 16px",
+    backgroundColor: theme.palette.custom.primary.dark,
+  },
 }));
 
 const isSelected = (first, second, style) => {
@@ -68,18 +78,22 @@ const list = [
   {
     primary: "All Messages",
     secondary: 21,
+    icon: <MessageIcon />,
   },
   {
     primary: "Unread",
     secondary: 89,
+    icon: <MessageIcon />,
   },
   {
     primary: "Important",
     secondary: 6,
+    icon: <MessageIcon />,
   },
   {
     primary: "Drafts",
     secondary: 27,
+    icon: <MessageIcon />,
   },
   {
     divider: true,
@@ -87,30 +101,37 @@ const list = [
   {
     primary: "Teams",
     secondary: 4,
+    icon: <MessageIcon />,
   },
   {
     primary: "Groups",
     secondary: 3,
+    icon: <MessageIcon />,
   },
   {
     primary: "Channels",
     secondary: 18,
+    icon: <MessageIcon />,
   },
   {
     primary: "Locations",
+    icon: <MessageIcon />,
   },
   {
     primary: "Media",
     secondary: 120,
+    icon: <MessageIcon />,
   },
   {
     divider: true,
   },
   {
     primary: "Help",
+    icon: <MessageIcon />,
   },
   {
     primary: "Settings",
+    icon: <MessageIcon />,
   },
 ];
 
@@ -119,40 +140,80 @@ const InboxMenu = (props) => {
   const theme = useTheme();
 
   return (
-    <div className={classes.root}>
-      <Row>
-        <Typography className={classes.title}>Inbox</Typography>
-        <div className={classes.icon}>
-          <PersonAddIcon fontSize="inherit" />
+    <>
+      <Hidden mdDown>
+        <div className={classes.textual}>
+          <Row>
+            <Typography className={classes.title}>Inbox</Typography>
+            <div className={classes.icon}>
+              <PersonAddIcon fontSize="inherit" />
+            </div>
+          </Row>
+          <div className={classes.list}>
+            {list.map((item, index) =>
+              item.divider ? (
+                <div className={classes.hr} key={index} />
+              ) : (
+                <Row
+                  key={index}
+                  className={classes.item}
+                  onClick={props.onClick}
+                  style={isSelected(props.selected, item.primary, {
+                    backgroundColor: theme.palette.custom.secondary.light,
+                  })}
+                >
+                  <div
+                    className={classes.textPrimary}
+                    style={isSelected(props.selected, item.primary, {
+                      color: theme.palette.common.white,
+                    })}
+                  >
+                    {item.primary}
+                  </div>
+                  <div className={classes.textSecondary}>{item.secondary}</div>
+                </Row>
+              ),
+            )}
+          </div>
         </div>
-      </Row>
-      <div className={classes.list}>
-        {list.map((item, index) =>
-          item.divider ? (
-            <div className={classes.hr} key={index} />
-          ) : (
-            <Row
-              key={index}
-              className={classes.item}
-              onClick={props.onClick}
-              style={isSelected(props.selected, item.primary, {
-                backgroundColor: theme.palette.custom.secondary.light,
-              })}
-            >
-              <div
-                className={classes.textPrimary}
-                style={isSelected(props.selected, item.primary, {
-                  color: theme.palette.common.white,
-                })}
-              >
-                {item.primary}
+      </Hidden>
+      <Hidden lgUp smDown={!props.show}>
+        <div className={classes.iconic}>
+          <Row className={classes.item}>
+            <div className={classes.icon}>
+              <InboxIcon />
+            </div>
+          </Row>
+          <Row className={classes.item}>
+            <Tooltip title="Create Chat" placement="left">
+              <div className={classes.icon}>
+                <PersonAddIcon />
               </div>
-              <div className={classes.textSecondary}>{item.secondary}</div>
-            </Row>
-          ),
-        )}
-      </div>
-    </div>
+            </Tooltip>
+          </Row>
+          <div className={classes.list}>
+            {list.map((item, index) =>
+              item.divider ? (
+                <div className={classes.hr} key={index} />
+              ) : (
+                <Row
+                  key={index}
+                  className={classes.item}
+                  onClick={props.onClick}
+                  style={isSelected(props.selected, item.primary, {
+                    backgroundColor: theme.palette.custom.secondary.light,
+                  })}
+                >
+                  <Tooltip title={item.primary} placement="left">
+                    <div className={classes.icon}>{item.icon}</div>
+                  </Tooltip>
+                </Row>
+              ),
+            )}
+          </div>
+        </div>
+      </Hidden>
+    </>
   );
 };
 

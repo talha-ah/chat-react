@@ -17,13 +17,12 @@ const api = ({ method = "GET", uri, body, headers, token }) =>
       console.log(`[API Data at ${new Date().toLocaleString()}]:`, data);
       resolve(data);
     } catch (err) {
-      try {
+      alert("Whoops, there was an error!");
+      if (err.status) {
         const error = await err.json();
-        alert("Whoops: " + error.message);
         console.log("[API Error]:", error);
         reject(error);
-      } catch (err) {
-        alert("Whoops: " + err);
+      } else {
         console.log("[API Error]:", err);
         reject(err);
       }

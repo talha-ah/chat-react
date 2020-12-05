@@ -5,6 +5,7 @@ import socketIOClient from "socket.io-client";
 import List from "@material-ui/core/List";
 import Avatar from "@material-ui/core/Avatar";
 import Dialog from "@material-ui/core/Dialog";
+import Drawer from "@material-ui/core/Drawer";
 import ListItem from "@material-ui/core/ListItem";
 import PersonIcon from "@material-ui/icons/Person";
 import { makeStyles } from "@material-ui/core/styles";
@@ -27,6 +28,14 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     alignItems: "center",
   },
+  drawer: {
+    // width: "100vw",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
 }));
 
 let socket;
@@ -45,6 +54,8 @@ const Messenger = (props) => {
 
   const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Socket
   useEffect(() => {
@@ -202,8 +213,27 @@ const Messenger = (props) => {
         onChange={(value) => setText(value)}
         messageLoading={messageLoading}
         onClick={sendMessage}
+        onOpenDrawer={() => setDrawerOpen(true)}
       />
       <SimpleDialog open={open} onClose={onClose} loading={chatLoading} />
+      <Drawer
+        anchor={"left"}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <div className={classes.drawer}>
+          <InboxMenu selected="All Messages" show={true} />
+          <FriendsMenu
+            list={chats}
+            user={store.user}
+            selected={selectedChat}
+            onClick={(chat) => {
+              setSelectedChat(chat);
+            }}
+            show={true}
+          />
+        </div>
+      </Drawer>
     </div>
   );
 };
