@@ -1,85 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import Fab from "@material-ui/core/Fab";
 import List from "@material-ui/core/List";
-import Badge from "@material-ui/core/Badge";
-import AddIcon from "@material-ui/icons/Add";
-import Hidden from "@material-ui/core/Hidden";
 import Avatar from "@material-ui/core/Avatar";
 import Dialog from "@material-ui/core/Dialog";
 import ListItem from "@material-ui/core/ListItem";
 import PersonIcon from "@material-ui/icons/Person";
-import DeleteIcon from "@material-ui/icons/Delete";
 import { makeStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 
 import API from "../../globals/API";
 import Constants from "../../globals/Constants";
 
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 import Loader from "../../components/Loader";
+import InboxMenu from "../../components/InboxMenu";
+import FriendsMenu from "../../components/FriendsMenu";
+import Chat from "../../components/Chat";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
-  },
-  content: {
-    height: "calc(100vh - 64px - 64px)",
-  },
-  wrapper: {
-    width: "100%",
-    height: "100%",
-    overflow: "hidden",
-    transition: "0.3s ease",
-  },
-  icon: {
-    fontSize: 30,
-    color: theme.palette.common.white,
-  },
-  messenger: {
-    padding: 10,
     display: "flex",
-    paddingBottom: 0,
-    overflow: "scroll",
-    position: "relative",
-    flexDirection: "column",
-    height: "calc(100%)",
-    justifyContent: "space-between",
-    backgroundColor: theme.palette.common.white,
-    "&::-webkit-scrollbar": {
-      width: 0,
-    },
-  },
-  fab: {
-    bottom: 0,
-    right: 10,
-    boxShadow: "none",
-    position: "absolute",
-    color: theme.palette.secondary.light,
-    backgroundColor: theme.palette.secondary.main,
-  },
-  drawerPaper: {
-    width: 350,
-  },
-  listItem: {
-    borderRadius: 10,
-    "&.Mui-selected, &:hover": {
-      backgroundColor: theme.palette.primary.main,
-    },
-  },
-  listItemTextPrimary: {
-    fontWeight: "bold",
-    color: theme.palette.primary.contrastText,
-  },
-  listItemTextSecondary: {
-    color: theme.palette.secondary.contrastText,
+    flexDirection: "row",
+    alignItems: "center",
   },
 }));
 
@@ -87,19 +32,27 @@ const Messenger = (props) => {
   const classes = useStyles();
   const store = useSelector((state) => state);
 
-  const [chats, setChats] = useState([]);
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+  const [messageLoading, setMessageLoading] = useState(false);
+
+  const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [selectedChatId, setSelectedChatId] = useState("");
 
   useEffect(() => {
     getChats();
     // eslint-disable-next-line
   }, []);
+  useEffect(() => {
+    selectedChat !== "" && getChat();
+    // eslint-disable-next-line
+  }, [selectedChat]);
 
+  // Chats
   const getChats = async () => {
     try {
       const data = await API({
@@ -112,6 +65,68 @@ const Messenger = (props) => {
       alert("Whoops, there was an error!");
     }
   };
+  const getChat = async () => {
+    try {
+      setChatLoading(true);
+      const data = await API({
+        uri: Constants.GET_CHAT + "/" + selectedChat._id,
+        token: store.token,
+      });
+      setMessages(data.chat.messages);
+      setChatLoading(false);
+    } catch (err) {
+      setChatLoading(false);
+    }
+  };
+  const onDelete = async (chatId) => {
+    try {
+      setDeleteLoading(true);
+      const data = await API({
+        method: "DELETE",
+        uri: Constants.DELETE_CHAT + "/" + chatId,
+        token: store.token,
+      });
+      setChats((chatsArray) => {
+        chatsArray = chatsArray.filter(
+          (chat) => String(chat._id) !== String(data.chat._id),
+        );
+        return chatsArray;
+      });
+      setDeleteLoading(false);
+    } catch (err) {
+      setDeleteLoading(false);
+    }
+  };
+  // Messages
+  const sendMessage = async () => {
+    try {
+      if (text !== "") {
+        setMessageLoading(true);
+        let receiverId =
+          selectedChat.user._id === store.user._id
+            ? selectedChat.with._id
+            : selectedChat.user._id;
+        const data = await API({
+          method: "POST",
+          uri: Constants.CREATE_MESSAGE + "/" + selectedChat._id,
+          token: store.token,
+          body: JSON.stringify({
+            text: text,
+            receiverId: receiverId,
+          }),
+        });
+        setMessages((arr) => {
+          arr = [...arr, data.message];
+          return arr;
+        });
+        setText("");
+        setMessageLoading(false);
+      }
+    } catch (err) {
+      setMessageLoading(false);
+    }
+  };
+
   const onClose = async ({ id }) => {
     try {
       if (id) {
@@ -134,156 +149,32 @@ const Messenger = (props) => {
       alert("Whoops, there was an error!");
     }
   };
-  const onDelete = async (chatId) => {
-    try {
-      setDeleteLoading(true);
-      const data = await API({
-        method: "DELETE",
-        uri: Constants.DELETE_CHAT + "/" + chatId,
-        token: store.token,
-      });
-      setChats((chatsArray) => {
-        chatsArray = chatsArray.filter(
-          (chat) => String(chat._id) !== String(data.chat._id),
-        );
-        return chatsArray;
-      });
-      setDeleteLoading(false);
-    } catch (err) {
-      alert("Whoops, there was an error!");
-      setDeleteLoading(false);
-    }
-  };
 
-  const ListRender = () => (
-    <List style={{ height: "100%" }}>
-      {loading ? (
-        <Loader.Progress />
-      ) : (
-        chats.map((chat) => (
-          <ListItem
-            button
-            key={chat._id}
-            onClick={() => {
-              setTimeout(
-                () => props.history.push("/messenger/" + chat._id),
-                250,
-              );
-            }}
-            classes={{
-              root: classes.listItem,
-            }}
-          >
-            <ListItemAvatar>
-              <Badge
-                badgeContent={chat.messages.length}
-                color="secondary"
-                showZero={true}
-              >
-                <Avatar>
-                  <img
-                    src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png"
-                    alt="avatar_chat"
-                    width="40"
-                    height="40"
-                  />
-                </Avatar>
-              </Badge>
-            </ListItemAvatar>
-            <ListItemText
-              primary={
-                chat.user._id === store.user._id
-                  ? chat.with.firstName + " " + chat.with.lastName
-                  : chat.user.firstName + " " + chat.user.lastName
-              }
-              secondary={
-                chat.user._id === store.user._id
-                  ? chat.with.email
-                  : chat.user.email
-              }
-              primaryTypographyProps={{
-                classes: { root: classes.listItemTextPrimary },
-              }}
-              secondaryTypographyProps={{
-                classes: { root: classes.listItemTextSecondary },
-              }}
-            />
-            <ListItemSecondaryAction>
-              <IconButton
-                onClick={() => {
-                  setSelectedChatId(chat._id);
-                  onDelete(chat._id);
-                }}
-                disabled={
-                  deleteLoading && String(chat._id) === String(selectedChatId)
-                }
-              >
-                <DeleteIcon
-                  color={
-                    deleteLoading && String(chat._id) === String(selectedChatId)
-                      ? "disabled"
-                      : "error"
-                  }
-                />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))
-      )}
-      {!loading && chats.length === 0 && (
-        <ListItem>
-          <ListItemText
-            primary={"We come up empty"}
-            secondary={"Click + button to start a new chat"}
-            primaryTypographyProps={{
-              classes: { root: classes.listItemTextPrimary },
-            }}
-            secondaryTypographyProps={{
-              classes: { root: classes.listItemTextSecondary },
-            }}
-          />
-        </ListItem>
-      )}
-    </List>
-  );
-
-  return (
+  return loading ? (
+    <Loader.CenterProgress />
+  ) : (
     <div className={classes.root}>
-      <Header />
-      <div className={classes.content}>
-        <Hidden smUp implementation="css">
-          <SwipeableDrawer
-            anchor={"left"}
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            onOpen={() => setDrawerOpen(true)}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-            container={
-              window !== undefined ? () => window.document.body : undefined
-            }
-          >
-            <ListRender />
-          </SwipeableDrawer>
-        </Hidden>
-        <div className={classes.wrapper}>
-          <div className={classes.messenger}>
-            <ListRender />
-            <Fab
-              // color="secondary"
-              className={classes.fab}
-              onClick={() => setOpen(true)}
-            >
-              <AddIcon />
-            </Fab>
-          </div>
-        </div>
-      </div>
-      <Footer />
+      <InboxMenu selected="All Messages" />
+      <FriendsMenu
+        list={chats}
+        user={store.user}
+        selected={selectedChat}
+        onClick={(chat) => {
+          setSelectedChat(chat);
+        }}
+      />
+      <Chat
+        list={messages}
+        length={messages.length}
+        selected={3}
+        user={store.user}
+        loading={chatLoading}
+        selectedChat={selectedChat}
+        value={text}
+        onChange={(value) => setText(value)}
+        messageLoading={messageLoading}
+        onClick={sendMessage}
+      />
       <SimpleDialog open={open} onClose={onClose} loading={chatLoading} />
     </div>
   );

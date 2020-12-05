@@ -260,7 +260,6 @@ const Chat = (props) => {
           arr = [...arr, data.message];
           return arr;
         });
-        // setMessages([...messages, data.message]);
         setText("");
         setUpdated((st) => !st);
         setMessageLoading(false);

@@ -32,6 +32,28 @@ const theme = createMuiTheme({
       light: "#f2f3f8",
       contrastText: "#aaa9b2",
     },
+    custom: {
+      primary: {
+        light: "#eef0f3",
+        main: "#242a31",
+        dark: "#1d232a",
+        contrastText: "#a0a4a7",
+      },
+      secondary: {
+        light: "#363d45",
+        main: "#0084ff",
+        dark: "#3c4249",
+        contrastText: "#fff",
+      },
+      divider: {
+        light: "#cfd2d7",
+        main: "#363d44",
+      },
+      text: {
+        main: "#a0a4a7",
+        icon: "#81868c",
+      },
+    },
   },
 });
 
@@ -49,29 +71,13 @@ const App = () => {
 };
 
 export default App;
-let colors = {
-  leftMessengerSelectDarkGrey: "#1e222b",
-  MenuMiddle: "#282f37",
-  selectedMenuItem: "#353c46",
-  chatsListGreyLight: "#282c35",
-  chatBubbleBlue: "#0084fe",
-  chatBubbleWhite: "#fff",
-  chatBackgroundGrey: "#f2f6f9",
-  searchBarLightGrey: "#363d45",
 
-  textDimGrey: "#696e74",
-  textDimWhite: "#e3e5e7",
-  textGrey: "#71777d",
-  headerLine: "#30353e",
-};
-
-let colors2 = {
-  mainBlue: "#4622fe",
-  selectedItem: "#f3f6ff",
-  input: "#f3f6ff",
-  backgroundWhite: "#ffffff",
-
-  textDark: "#21223a",
-  textLight: "#f2f3f8",
-  textLight2: "#aaa9b2",
-};
+// primary: {
+//   main: "#f3f6ff",
+//   contrastText: "#21223a",
+// },
+// secondary: {
+//   main: "#4622fe",
+//   light: "#f2f3f8",
+//   contrastText: "#aaa9b2",
+// },

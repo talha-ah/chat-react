@@ -16,19 +16,22 @@ import Loader from "../components/Loader";
 import Heading from "../components/Heading";
 import SmallText from "../components/SmallText";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    minWidth: "100vw",
-    minHeight: "100vh",
-    alignItems: "center",
-    flexDirection: "column",
-    backgroundSize: "cover",
-    justifyContent: "center",
-    backgroundColor: "#f5f7fb",
-    backgroundPosition: "center",
-  },
-}));
+const useStyles = makeStyles((theme) => {
+  console.log(theme);
+  return {
+    root: {
+      display: "flex",
+      minWidth: "100vw",
+      minHeight: "100vh",
+      alignItems: "center",
+      flexDirection: "column",
+      backgroundSize: "cover",
+      justifyContent: "center",
+      backgroundColor: "#f5f7fb",
+      backgroundPosition: "center",
+    },
+  };
+});
 
 export default function Login(props) {
   const dispatch = useDispatch();
