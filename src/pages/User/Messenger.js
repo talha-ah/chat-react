@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import socketIOClient from "socket.io-client";
 
 import List from "@material-ui/core/List";
 import Avatar from "@material-ui/core/Avatar";
@@ -28,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+let socket;
+
 const Messenger = (props) => {
   const classes = useStyles();
   const store = useSelector((state) => state);
@@ -43,6 +46,31 @@ const Messenger = (props) => {
   const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Socket
+  useEffect(() => {
+    socket = socketIOClient(Constants.BASE_URL, {
+      query: `userId=${store.user._id}`,
+    });
+
+    socket.on("message", (data) => {
+      if (data.action === "create") {
+        setMessages((arr) => {
+          arr = [...arr, data.message];
+          return arr;
+        });
+        // setUpdated((st) => !st);
+      } else if (data.action === "delete") {
+        console.log("delete message", { data });
+      }
+    });
+    // getChat();
+    return () => {
+      socket.disconnect("true");
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  // Use Effects
   useEffect(() => {
     getChats();
     // eslint-disable-next-line
