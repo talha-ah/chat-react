@@ -11,9 +11,8 @@ import Register from "../pages/Register";
 import PasswordForgot from "../pages/PasswordForgot";
 
 // User
-import Chat from "../pages/User/Chat";
 import Profile from "../pages/User/Profile";
-import Messenger from "../pages/User/Messenger";
+import Messenger from "../pages/Messenger/Messenger";
 
 import Loader from "../components/Loader";
 
@@ -56,7 +55,6 @@ const MAIN = () => {
     <Switch>
       <Route exact path="/" component={Profile} />
       <Route exact path="/messenger" component={Messenger} />
-      <Route exact path="/messenger/:chatId" component={Chat} />
       <Redirect from="*" to="/" />
     </Switch>
   ) : (

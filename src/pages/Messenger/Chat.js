@@ -10,9 +10,9 @@ import MenuIcon from "@material-ui/icons/Menu";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 
-import Row from "./MenuRow";
-import Loader from "./Loader";
-import Empty from "./Empty";
+import Row from "../../components/MenuRow";
+import Loader from "../../components/Loader";
+import Empty from "../../components/Empty";
 
 const useStyles = makeStyles((theme) => ({
   root: {

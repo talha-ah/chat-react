@@ -9,7 +9,7 @@ import Hidden from "@material-ui/core/Hidden";
 import InboxIcon from "@material-ui/icons/Inbox";
 import MessageIcon from "@material-ui/icons/Message";
 
-import Row from "./MenuRow";
+import Row from "../../components/MenuRow";
 
 const useStyles = makeStyles((theme) => ({
   textual: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   // list
   list: {
-    marginTop: 30,
+    paddingTop: 10,
   },
   item: {
     height: 40,
@@ -146,7 +146,7 @@ const InboxMenu = (props) => {
           <Row>
             <Typography className={classes.title}>Inbox</Typography>
             <div className={classes.icon}>
-              <PersonAddIcon fontSize="inherit" />
+              <PersonAddIcon fontSize="inherit" onClick={props.onAdd} />
             </div>
           </Row>
           <div className={classes.list}>
@@ -157,7 +157,7 @@ const InboxMenu = (props) => {
                 <Row
                   key={index}
                   className={classes.item}
-                  onClick={props.onClick}
+                  onClick={() => props.onChange(item.primary)}
                   style={isSelected(props.selected, item.primary, {
                     backgroundColor: theme.palette.custom.secondary.light,
                   })}
@@ -199,7 +199,7 @@ const InboxMenu = (props) => {
                 <Row
                   key={index}
                   className={classes.item}
-                  onClick={props.onClick}
+                  onClick={() => props.onChange(item.primary)}
                   style={isSelected(props.selected, item.primary, {
                     backgroundColor: theme.palette.custom.secondary.light,
                   })}

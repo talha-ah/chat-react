@@ -16,10 +16,10 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import API from "../../globals/API";
 import Constants from "../../globals/Constants";
 
+import Chat from "./Chat";
+import InboxMenu from "./InboxMenu";
+import FriendsMenu from "./FriendsMenu";
 import Loader from "../../components/Loader";
-import InboxMenu from "../../components/InboxMenu";
-import FriendsMenu from "../../components/FriendsMenu";
-import Chat from "../../components/Chat";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   drawer: {
-    // width: "100vw",
     height: "100vh",
     display: "flex",
     flexDirection: "row",
@@ -44,6 +43,8 @@ const Messenger = (props) => {
   const classes = useStyles();
   const store = useSelector((state) => state);
 
+  const [inbox, setInbox] = useState("All Messages");
+
   const [loading, setLoading] = useState(true);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState("");
@@ -52,7 +53,7 @@ const Messenger = (props) => {
   const [text, setText] = useState("");
   const [messageLoading, setMessageLoading] = useState(false);
 
-  const [open, setOpen] = useState(false);
+  const [diaglogOpen, setDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -63,18 +64,32 @@ const Messenger = (props) => {
       query: `userId=${store.user._id}`,
     });
 
+    socket.on("chat", (data) => {
+      if (data.action === "create") {
+        setChats((arr) => {
+          arr = [...arr, data.chat];
+          return arr;
+        });
+      } else if (data.action === "delete") {
+        setChats((chatsArray) => {
+          chatsArray = chatsArray.filter(
+            (chat) => String(chat._id) !== String(data.chat._id),
+          );
+          return chatsArray;
+        });
+      }
+    });
     socket.on("message", (data) => {
       if (data.action === "create") {
         setMessages((arr) => {
           arr = [...arr, data.message];
           return arr;
         });
-        // setUpdated((st) => !st);
       } else if (data.action === "delete") {
         console.log("delete message", { data });
       }
     });
-    // getChat();
+
     return () => {
       socket.disconnect("true");
     };
@@ -117,24 +132,29 @@ const Messenger = (props) => {
       setChatLoading(false);
     }
   };
-  const onDelete = async (chatId) => {
-    try {
+  const onDelete = (chatId) => {
+    return new Promise(async (resolve, reject) => {
       setDeleteLoading(true);
-      const data = await API({
+      API({
         method: "DELETE",
         uri: Constants.DELETE_CHAT + "/" + chatId,
         token: store.token,
-      });
-      setChats((chatsArray) => {
-        chatsArray = chatsArray.filter(
-          (chat) => String(chat._id) !== String(data.chat._id),
-        );
-        return chatsArray;
-      });
-      setDeleteLoading(false);
-    } catch (err) {
-      setDeleteLoading(false);
-    }
+      })
+        .then((data) => {
+          setChats((chatsArray) => {
+            chatsArray = chatsArray.filter(
+              (chat) => String(chat._id) !== String(data.chat._id),
+            );
+            return chatsArray;
+          });
+          resolve();
+          setDeleteLoading(false);
+        })
+        .catch((err) => {
+          reject();
+          setDeleteLoading(false);
+        });
+    });
   };
   // Messages
   const sendMessage = async () => {
@@ -165,7 +185,7 @@ const Messenger = (props) => {
       setMessageLoading(false);
     }
   };
-
+  // Diaglog
   const onClose = async ({ id }) => {
     try {
       if (id) {
@@ -178,14 +198,20 @@ const Messenger = (props) => {
             withId: id,
           }),
         });
+        setChats((arr) => {
+          arr = [...arr, data.chat];
+          return arr;
+        });
+        console.log(data.chat);
+        setSelectedChat(data.chat);
         setChatLoading(false);
-        setOpen(false);
-        props.history.push("/messenger/" + data.chat._id);
+        setDialogOpen(false);
       } else {
-        setOpen(false);
+        setDialogOpen(false);
       }
     } catch (err) {
-      alert("Whoops, there was an error!");
+      setChatLoading(false);
+      setDialogOpen(false);
     }
   };
 
@@ -193,7 +219,11 @@ const Messenger = (props) => {
     <Loader.CenterProgress />
   ) : (
     <div className={classes.root}>
-      <InboxMenu selected="All Messages" />
+      <InboxMenu
+        selected={inbox}
+        onAdd={() => setDialogOpen(true)}
+        onChange={setInbox}
+      />
       <FriendsMenu
         list={chats}
         user={store.user}
@@ -201,6 +231,8 @@ const Messenger = (props) => {
         onClick={(chat) => {
           setSelectedChat(chat);
         }}
+        onDelete={onDelete}
+        loading={deleteLoading}
       />
       <Chat
         list={messages}
@@ -215,7 +247,6 @@ const Messenger = (props) => {
         onClick={sendMessage}
         onOpenDrawer={() => setDrawerOpen(true)}
       />
-      <SimpleDialog open={open} onClose={onClose} loading={chatLoading} />
       <Drawer
         anchor={"left"}
         open={drawerOpen}
@@ -234,6 +265,11 @@ const Messenger = (props) => {
           />
         </div>
       </Drawer>
+      <SimpleDialog
+        open={diaglogOpen}
+        onClose={onClose}
+        loading={chatLoading}
+      />
     </div>
   );
 };
@@ -264,6 +300,7 @@ function SimpleDialog(props) {
       );
       setLoading(false);
     } catch (err) {
+      onClose();
       alert("Whoops, there was an error!");
     }
   };

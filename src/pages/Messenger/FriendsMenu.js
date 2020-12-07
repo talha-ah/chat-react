@@ -5,9 +5,13 @@ import Hidden from "@material-ui/core/Hidden";
 import SearchIcon from "@material-ui/icons/Search";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 
-import Row from "./MenuRow";
-import Column from "./MenuColumn";
+import Row from "../../components/MenuRow";
+import Empty from "../../components/Empty";
+import Loader from "../../components/Loader";
+import Column from "../../components/MenuColumn";
 
 const useStyles = makeStyles((theme) => ({
   textual: {
@@ -51,7 +55,8 @@ const useStyles = makeStyles((theme) => ({
   },
   // list
   list: {
-    marginTop: 10,
+    height: "calc(100% - 84px)",
+    paddingTop: 10,
   },
   item: {
     height: 70,
@@ -121,6 +126,19 @@ const FriendsMenu = (props) => {
   const classes = useStyles();
   const theme = useTheme();
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (id) => {
+    props
+      .onDelete(id)
+      .then((data) => setAnchorEl(null))
+      .catch((err) => setAnchorEl(null));
+  };
+
   return (
     <>
       <Hidden smDown>
@@ -136,56 +154,87 @@ const FriendsMenu = (props) => {
             </Row>
           </Row>
           <div className={classes.list}>
-            {props.list.map((item) => (
-              <Row
-                key={item._id}
-                className={classes.item}
-                onClick={() => props.onClick(item)}
-                style={isSelected(props.selected._id, item._id, {
-                  borderColor: theme.palette.custom.secondary.main,
-                })}
-              >
-                <div className={classes.avatar}>
-                  <img
-                    src={
-                      "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png"
-                    }
-                    alt="avatar_chat"
-                    width="40"
-                    height="40"
-                  />
-                </div>
-                <Column
-                  style={{
-                    width: "64%",
-                  }}
+            {props.list.length === 0 ? (
+              <Empty.Empty2 light />
+            ) : (
+              props.list.map((item) => (
+                <Row
+                  key={item._id}
+                  className={classes.item}
+                  style={isSelected(props.selected._id, item._id, {
+                    borderColor: theme.palette.custom.secondary.main,
+                  })}
                 >
-                  <div className={classes.textPrimary}>
-                    {item.user._id === props.user._id
-                      ? item.with.firstName + " " + item.with.lastName
-                      : item.user.firstName + " " + item.user.lastName}
+                  <div
+                    className={classes.avatar}
+                    onClick={() => props.onClick(item)}
+                  >
+                    <img
+                      src={
+                        "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png"
+                      }
+                      alt="avatar_chat"
+                      width="40"
+                      height="40"
+                    />
                   </div>
-                  <div className={classes.textSecondary}>
-                    {item.user._id === props.user._id
-                      ? item.with.email
-                      : item.user.email}
-                  </div>
-                </Column>
-                <Column
-                  style={{
-                    width: "14%",
-                    paddingRight: "10px",
-                    alignItems: "flex-end",
-                    color: theme.palette.common.white,
-                  }}
-                >
-                  <MoreHorizIcon color="inherit" className={classes.dots} />
-                  <div className={classes.time}>
-                    {moment(item.updatedAt).fromNow().split("ago")[0]}
-                  </div>
-                </Column>
-              </Row>
-            ))}
+                  <Column
+                    style={{
+                      width: "64%",
+                    }}
+                  >
+                    <div
+                      className={classes.textPrimary}
+                      onClick={() => props.onClick(item)}
+                    >
+                      {item.user._id === props.user._id
+                        ? item.with.firstName + " " + item.with.lastName
+                        : item.user.firstName + " " + item.user.lastName}
+                    </div>
+                    <div className={classes.textSecondary}>
+                      {item.user._id === props.user._id
+                        ? item.with.email
+                        : item.user.email}
+                    </div>
+                  </Column>
+                  <Column
+                    style={{
+                      width: "14%",
+                      paddingRight: "10px",
+                      alignItems: "flex-end",
+                      color: theme.palette.common.white,
+                    }}
+                  >
+                    <MoreHorizIcon
+                      color="inherit"
+                      className={classes.dots}
+                      onClick={handleClick}
+                    />
+                    <div className={classes.time}>
+                      {moment(item.updatedAt).fromNow().split("ago")[0]}
+                    </div>
+                  </Column>
+                  <Menu
+                    keepMounted
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={() => {
+                      setAnchorEl(null);
+                    }}
+                  >
+                    {props.loading ? (
+                      <MenuItem disabled>
+                        <Loader.Progress />
+                      </MenuItem>
+                    ) : (
+                      <MenuItem onClick={() => handleClose(item._id)}>
+                        Delete
+                      </MenuItem>
+                    )}
+                  </Menu>
+                </Row>
+              ))
+            )}
           </div>
         </div>
       </Hidden>
